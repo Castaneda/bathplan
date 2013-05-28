@@ -4,6 +4,7 @@ import 'dart:html';
 part 'Room.dart';
 part 'Tile.dart';
 part 'InfoBlock.dart';
+part 'Drawable.dart';
 
 void main() {
   CanvasElement canvas = query("#canvas");

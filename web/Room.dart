@@ -7,11 +7,15 @@ class Room {
 
   static final String BORDER_STYLE = '1px solid grey';
   static final int WALLS = 4;
+  
+  static final int LINE_WIDTH = 1;
+  static final int PADDING = 1;
 
   InfoBlock infoBlock;
 
   //Плитка
   TileSet tileSet;
+  List<TileSet> tiles;
 
   static final rows = 12;
   static final cols = 8;
@@ -29,8 +33,17 @@ class Room {
     //events
     window.onResize.listen(onResize);
     canvas.onMouseMove.listen(onMouseMove);
+    canvas.onMouseUp.listen(onMouseUp);
     //drawings
-    tileSet = new TileSet(WALLS, rows, cols);
+    drawWalls();
+  }
+  
+  void clear() {
+    context.clearRect(0, 0, width, height);
+  }
+  
+  void redraw() {
+    clear();
     drawWalls();
   }
 
@@ -45,13 +58,19 @@ class Room {
     double wallWidth = width / WALLS;
     int wallHeight = height;
 
+    tiles = new List();
+    
     for (int i = 0; i < WALLS; i++) {
       double xPosition = i * wallWidth;
       context.beginPath();
       context.rect(xPosition, 0, wallWidth, wallHeight);
-      context.fillText('$i', xPosition + 20, 40);
+      //context.fillText('$i', xPosition + 20, 40);
       context.closePath();
       context.stroke();
+      
+      tileSet = new TileSet(rows, cols, wallWidth, wallHeight, xPosition);
+      tiles.add(tileSet);
+      tileSet.draw(context);
 
     }
   }
@@ -66,6 +85,16 @@ class Room {
     int y = event.offsetY;
 
     infoBlock.setCords = "x = $x, y = $y";
+  }
+  void onMouseUp(MouseEvent event) {
+    int x = event.offsetX;
+    int y = event.offsetY;
+    
+    for (TileSet tileSet in tiles) {
+      tileSet.changeTileColor(x, y);
+    }
+    
+    infoBlock.setCords = 'test click';
   }
 
 }

@@ -23,19 +23,25 @@ class Tile extends Drawable {
     context.lineWidth = Room.LINE_WIDTH;
     context.beginPath();
     context.rect(x, y, width, height);
+    context.font = '12px sans-serif';
+    context.fillText('$y', x+2, y+11);
     context.closePath();
     context.stroke();
 //    context.fillStyle = color;
 //    context.fillRect(x, y, width, height);
   }
-  
+
   void changeColor() {
     context.fillStyle = color;
     context.fillRect(x, y, width, height);
   }
-  
+
+  void printInfo(InfoBlock infoBlock) {
+    infoBlock.setCords = 'x = $x; y = $y; row = $row; col = $col;';
+  }
+
   bool isPointInside(int pX, int pY) {
-    if (pX > x && pX < x + width && pY > y && pY < y + height) {
+    if ((pX > x && pX < (x + width)) && (pY > y && pY < (y + height))) {
       return true;
     }
     return false;
@@ -45,16 +51,17 @@ class Tile extends Drawable {
 
 
 class TileSet {
+  InfoBlock infoBlock;
   int rows, cols, wallHeight;
   double wallWidth, xPosition;
   double tileWidth, tileHeight;
   List<List> tiles;
   List<Tile> tileRow;
 
-  TileSet(this.rows, this.cols, this.wallWidth, this.wallHeight, this.xPosition) {
+  TileSet(this.rows, this.cols, this.wallWidth, this.wallHeight, this.xPosition, this.infoBlock) {
     tileWidth = (wallWidth - (Room.LINE_WIDTH * cols) - Room.LINE_WIDTH)/cols;
-    tileHeight = wallHeight/rows;
-    
+    tileHeight = (wallHeight - (Room.LINE_WIDTH * rows) - Room.LINE_WIDTH)/rows;
+
     tiles = new List();
 
     for (int row = 0; row < rows; row++) {
@@ -66,7 +73,7 @@ class TileSet {
       tiles.add(tileRow);
     }
   }
-  
+
   void draw(CanvasRenderingContext2D context) {
     for (List tileRow in tiles) {
       for (Tile tile in tileRow) {
@@ -74,15 +81,16 @@ class TileSet {
       }
     }
   }
-  
+
   void changeTileColor(int x, int y) {
     for (List tileRow in tiles) {
       for (Tile tile in tileRow) {
         if (tile.isPointInside(x, y)) {
-          tile.changeColor();
+          tile.printInfo(infoBlock);
+          //tile.changeColor();
         }
       }
     }
   }
-  
+
 }

@@ -1379,7 +1379,7 @@ _IsolateContext: {"": "Object;id>,ports,isolateStatics",
   unregister$1: function(portId) {
     var t1 = this.ports;
     t1.remove$1(t1, portId);
-    if (this.ports._length === 0) {
+    if (this.ports._liblib$_length === 0) {
       t1 = $globalState.isolates;
       t1.remove$1(t1, this.id);
     }
@@ -1403,7 +1403,7 @@ _EventLoop: {"": "Object;events,activeTimerCount",
     return t1.removeFirst$0();
   },
   checkOpenReceivePortsFromCommandLine$0: function() {
-    if ($globalState.rootContext != null && $globalState.isolates.containsKey$1($globalState.rootContext.id) && $globalState.fromCommandLine === true && $globalState.rootContext.ports._length === 0)
+    if ($globalState.rootContext != null && $globalState.isolates.containsKey$1($globalState.rootContext.id) && $globalState.fromCommandLine === true && $globalState.rootContext.ports._liblib$_length === 0)
       throw $.wrapException(new $._ExceptionImplementation("Program exited with open ReceivePorts."));
   },
   runIteration$0: function() {
@@ -1415,7 +1415,7 @@ _EventLoop: {"": "Object;events,activeTimerCount",
       if (t1.isWorker === true) {
         t2 = t1.isolates;
         t2.get$isEmpty;
-        t2 = t2._length === 0 && t1.topEventLoop.activeTimerCount === 0;
+        t2 = t2._liblib$_length === 0 && t1.topEventLoop.activeTimerCount === 0;
       } else
         t2 = false;
       if (t2) {
@@ -2893,7 +2893,7 @@ stringReplaceAllUnchecked: function(receiver, from, to) {
 }}],
 ["bathplan", {
 Drawable: {"": "Object;x>,y>",
-  draw$1: function(context) {
+  draw$0: function() {
   }
 },
 
@@ -2933,9 +2933,9 @@ Room: {"": "Object;context,height,width,infoBlock,tileSet,tiles",
       this.context.rect(xPosition, 0, wallWidth, wallHeight);
       this.context.closePath();
       this.context.stroke();
-      this.tileSet = $.TileSet$(12, 8, wallWidth, wallHeight, xPosition, this.infoBlock);
-      this.tileSet.draw$1(this.context);
+      this.tileSet = $.TileSet$(this.context, 12, 8, wallWidth, wallHeight, xPosition, this.infoBlock);
       $.add$1$ax(this.tiles, this.tileSet);
+      this.tileSet.draw$0();
     }
   },
   onResize$1: function(_, $event) {
@@ -2970,8 +2970,8 @@ Room: {"": "Object;context,height,width,infoBlock,tileSet,tiles",
   },
   Room$1: function(canvas) {
     var t1, t2;
-    this.width = window.innerWidth;
-    this.height = 400;
+    this.width = 1080;
+    this.height = 360;
     t1 = $.getInterceptor$x(canvas);
     t1.set$width(canvas, this.width);
     t1.set$height(canvas, this.height);
@@ -3001,15 +3001,38 @@ Room: {"": "Object;context,height,width,infoBlock,tileSet,tiles",
   }
 },
 
-Tile: {"": "Drawable;context,row,col,width,height,startX,color,x>,y>,lib2$Drawable$x,lib2$Drawable$y,needsUpdate",
-  draw$1: function(context) {
-    this.context = context;
-    context.lineWidth = 1;
-    context.beginPath();
-    context.rect(this.x, this.y, this.width, this.height);
-    context.font = "12px sans-serif";
-    context.closePath();
-    context.stroke();
+Tile: {"": "Drawable;context,row,col,width,height,startX,availableColors,color,x>,y>,lib1$Drawable$x,lib1$Drawable$y,needsUpdate",
+  draw$0: function() {
+    this.context.lineWidth = 1;
+    this.context.fillStyle = this.color;
+    this.context.beginPath();
+    this.context.rect(this.x, this.y, this.width, this.height);
+    this.context.fillRect(this.x, this.y, this.width, this.height);
+    this.context.closePath();
+    this.context.stroke();
+  },
+  pickNextColor$0: function() {
+    var i, t1, t2, t3;
+    for (i = 0; t1 = this.availableColors, i < t1.length; ++i)
+      if ($.$eq(this.color, t1[i])) {
+        t1 = i + 1;
+        t2 = this.availableColors;
+        t3 = t2.length;
+        if (t1 < t3) {
+          this.color = t2[t1];
+          return;
+        } else {
+          if (0 >= t3)
+            throw $.ioore(0);
+          this.color = t2[0];
+          return;
+        }
+      }
+  },
+  changeColor$0: function() {
+    this.pickNextColor$0();
+    this.context.clearRect(this.x, this.y, this.width, this.height);
+    this.draw$0();
   },
   printInfo$1: function(infoBlock) {
     var t1 = "Tile: " + (this.row + 1) + "/" + (this.col + 1);
@@ -3029,44 +3052,47 @@ Tile: {"": "Drawable;context,row,col,width,height,startX,color,x>,y>,lib2$Drawab
       return true;
     return false;
   },
-  Tile$5: function(row, col, width, height, startX) {
+  Tile$6: function(context, row, col, width, height, startX) {
     this.x = 1 + (this.width + 1) * this.col + this.startX;
     this.y = 1 + (this.height + 1) * this.row;
-    this.color = "#ABC";
+    this.availableColors = ["#FFF", "#ABC", "#f1ecd5", "#19549e"];
+    this.color = "#FFF";
   }
 },
 
-TileSet: {"": "Object;infoBlock,rows,cols,wallHeight,wallWidth,xPosition,tileWidth,tileHeight,tiles,tileRow",
-  draw$1: function(context) {
+TileSet: {"": "Object;context,infoBlock,rows,cols,wallHeight,wallWidth,xPosition,tileWidth,tileHeight,tiles,tileRow",
+  draw$0: function() {
     var t1, t2;
     for (t1 = $.JSArray_methods.get$iterator(this.tiles); t1.moveNext$0();)
       for (t2 = $.get$iterator$ax(t1.get$current()); t2.moveNext$0() === true;)
-        t2.get$current().draw$1(context);
+        t2.get$current().draw$0();
   },
   changeTileColor$2: function(x, y) {
     var t1, t2, tile;
     for (t1 = $.JSArray_methods.get$iterator(this.tiles); t1.moveNext$0();)
       for (t2 = $.get$iterator$ax(t1.get$current()); t2.moveNext$0() === true;) {
         tile = t2.get$current();
-        if (tile.isPointInside$2(x, y))
+        if (tile.isPointInside$2(x, y)) {
           tile.printInfo$1(this.infoBlock);
+          tile.changeColor$0();
+        }
       }
   },
-  TileSet$6: function(rows, cols, wallWidth, wallHeight, xPosition, infoBlock) {
+  TileSet$7: function(context, rows, cols, wallWidth, wallHeight, xPosition, infoBlock) {
     var t1, t2, t3, t4, t5, row, hRow, col, tile, hCol, t6, t7;
     t1 = this.wallWidth;
     t2 = this.cols;
     this.tileWidth = (t1 - 1 * t2 - 1) / t2;
     t3 = this.wallHeight;
     if (t3 !== (t3 | 0))
-      return this.TileSet$6$bailout(1, t3, t1, t2);
+      return this.TileSet$7$bailout(1, t2, t3, t1);
     t4 = this.rows;
     this.tileHeight = (t3 - 1 * t4 - 1) / t4;
     this.tiles = $.List_List($);
     for (t5 = this.xPosition, row = 0; row < t4; row = hRow) {
       this.tileRow = $.List_List($);
       for (hRow = row + 1, col = 0; col < t2; col = hCol) {
-        tile = $.Tile$(row, col, this.tileWidth, this.tileHeight, t5);
+        tile = $.Tile$(this.context, row, col, this.tileWidth, this.tileHeight, t5);
         hCol = col + 1;
         t6 = this.infoBlock;
         t7 = "wall: " + $.S(t1) + "/" + t3 + ", tiles: " + hRow + "/" + hCol + " (" + $.S(this.tileWidth) + "/" + $.S(this.tileHeight) + " each)";
@@ -3076,7 +3102,7 @@ TileSet: {"": "Object;infoBlock,rows,cols,wallHeight,wallWidth,xPosition,tileWid
       this.tiles.push(this.tileRow);
     }
   },
-  TileSet$6$bailout: function(state0, t3, t1, t2) {
+  TileSet$7$bailout: function(state0, t2, t3, t1) {
     var t4, t5, row, hRow, col, tile, hCol, t6, t7;
     t4 = this.rows;
     this.tileHeight = ($.$sub$n(t3, 1 * t4) - 1) / t4;
@@ -3084,7 +3110,7 @@ TileSet: {"": "Object;infoBlock,rows,cols,wallHeight,wallWidth,xPosition,tileWid
     for (t5 = this.xPosition, row = 0; row < t4; row = hRow) {
       this.tileRow = $.List_List($);
       for (hRow = row + 1, col = 0; col < t2; col = hCol) {
-        tile = $.Tile$(row, col, this.tileWidth, this.tileHeight, t5);
+        tile = $.Tile$(this.context, row, col, this.tileWidth, this.tileHeight, t5);
         hCol = col + 1;
         t6 = this.infoBlock;
         t7 = "wall: " + $.S(t1) + "/" + $.S(t3) + ", tiles: " + hRow + "/" + hCol + " (" + $.S(this.tileWidth) + "/" + $.S(this.tileHeight) + " each)";
@@ -3108,15 +3134,15 @@ Room$: function(canvas) {
   return t1;
 },
 
-Tile$: function(row, col, width, height, startX) {
-  var t1 = new $.Tile(null, row, col, width, height, startX, null, null, null, null, null, false);
-  t1.Tile$5(row, col, width, height, startX);
+Tile$: function(context, row, col, width, height, startX) {
+  var t1 = new $.Tile(context, row, col, width, height, startX, null, null, null, null, null, null, false);
+  t1.Tile$6(context, row, col, width, height, startX);
   return t1;
 },
 
-TileSet$: function(rows, cols, wallWidth, wallHeight, xPosition, infoBlock) {
-  var t1 = new $.TileSet(infoBlock, rows, cols, wallHeight, wallWidth, xPosition, null, null, null, null);
-  t1.TileSet$6(rows, cols, wallWidth, wallHeight, xPosition, infoBlock);
+TileSet$: function(context, rows, cols, wallWidth, wallHeight, xPosition, infoBlock) {
+  var t1 = new $.TileSet(context, infoBlock, rows, cols, wallHeight, wallWidth, xPosition, null, null, null, null);
+  t1.TileSet$7(context, rows, cols, wallWidth, wallHeight, xPosition, infoBlock);
   return t1;
 },
 
@@ -3124,9 +3150,9 @@ main: function() {
   $.Room$(document.querySelector("#canvas"));
 }}],
 ["dart._collection.dev", {
-ListIterator: {"": "Object;_iterable,_liblib$_length,_index,_current",
+ListIterator: {"": "Object;_iterable,_liblib0$_length,_index,_liblib0$_current",
   get$current: function() {
-    return this._current;
+    return this._liblib0$_current;
   },
   moveNext$0: function() {
     var t1, $length, t2;
@@ -3134,17 +3160,17 @@ ListIterator: {"": "Object;_iterable,_liblib$_length,_index,_current",
     $length = $.get$length$asx(t1);
     if (typeof $length !== "number")
       return this.moveNext$0$bailout(1, t1, $length);
-    t2 = this._liblib$_length;
+    t2 = this._liblib0$_length;
     if (typeof t2 !== "number")
       return this.moveNext$0$bailout(2, t1, $length, t2);
     if (t2 !== $length)
       throw $.wrapException(new $.ConcurrentModificationError(t1));
     t2 = this._index;
     if (t2 >= $length) {
-      this._current = null;
+      this._liblib0$_current = null;
       return false;
     }
-    this._current = $.elementAt$1$ax(t1, t2);
+    this._liblib0$_current = $.elementAt$1$ax(t1, t2);
     this._index = this._index + 1;
     return true;
   },
@@ -3155,17 +3181,17 @@ ListIterator: {"": "Object;_iterable,_liblib$_length,_index,_current",
         $length = $.get$length$asx(t1);
       case 1:
         state0 = 0;
-        t2 = this._liblib$_length;
+        t2 = this._liblib0$_length;
       case 2:
         state0 = 0;
         if (!$.$eq(t2, $length))
           throw $.wrapException(new $.ConcurrentModificationError(t1));
         t2 = this._index;
         if ($.JSNumber_methods.$ge(t2, $length)) {
-          this._current = null;
+          this._liblib0$_current = null;
           return false;
         }
-        this._current = $.elementAt$1$ax(t1, t2);
+        this._liblib0$_current = $.elementAt$1$ax(t1, t2);
         this._index = this._index + 1;
         return true;
     }
@@ -3184,21 +3210,21 @@ MappedIterable: {"": "IterableBase;_iterable,_f",
   $asIterable: function (S, T) { return [T]; }
 },
 
-MappedIterator: {"": "Iterator;_current,_iterator,_f",
+MappedIterator: {"": "Iterator;_liblib0$_current,_iterator,_f",
   _f$1: function(arg0) {
     return this._f.call$1(arg0);
   },
   moveNext$0: function() {
     var t1 = this._iterator;
     if (t1.moveNext$0() === true) {
-      this._current = this._f$1(t1.get$current());
+      this._liblib0$_current = this._f$1(t1.get$current());
       return true;
     }
-    this._current = null;
+    this._liblib0$_current = null;
     return false;
   },
   get$current: function() {
-    return this._current;
+    return this._liblib0$_current;
   }
 },
 
@@ -3805,7 +3831,7 @@ HashMap_values_closure: {"": "Closure;this_0",
 
 HashMapKeyIterable: {"": "IterableBase;_map",
   get$length: function(_) {
-    return this._map._length;
+    return this._map._liblib$_length;
   },
   get$iterator: function(_) {
     var t1 = this._map;
@@ -3814,9 +3840,9 @@ HashMapKeyIterable: {"": "IterableBase;_map",
   $asIterable: null
 },
 
-HashMapKeyIterator: {"": "Object;_map,_keys,_offset,_liblib1$_current",
+HashMapKeyIterator: {"": "Object;_map,_keys,_offset,_liblib$_current",
   get$current: function() {
-    return this._liblib1$_current;
+    return this._liblib$_current;
   },
   moveNext$0: function() {
     var keys, offset, t1;
@@ -3826,10 +3852,10 @@ HashMapKeyIterator: {"": "Object;_map,_keys,_offset,_liblib1$_current",
     if (keys !== t1._keys)
       throw $.wrapException(new $.ConcurrentModificationError(t1));
     else if (offset >= keys.length) {
-      this._liblib1$_current = null;
+      this._liblib$_current = null;
       return false;
     } else {
-      this._liblib1$_current = keys[offset];
+      this._liblib$_current = keys[offset];
       this._offset = offset + 1;
       return true;
     }
@@ -3846,7 +3872,7 @@ LinkedHashMapCell: {"": "Object;_key<,_value@,_next@,_previous"},
 
 LinkedHashMapKeyIterable: {"": "IterableBase;_map",
   get$length: function(_) {
-    return this._map._length;
+    return this._map._liblib$_length;
   },
   get$iterator: function(_) {
     var t1 = this._map;
@@ -3857,9 +3883,9 @@ LinkedHashMapKeyIterable: {"": "IterableBase;_map",
   $asIterable: null
 },
 
-LinkedHashMapKeyIterator: {"": "Object;_map,_modifications,_cell,_liblib1$_current",
+LinkedHashMapKeyIterator: {"": "Object;_map,_modifications,_cell,_liblib$_current",
   get$current: function() {
-    return this._liblib1$_current;
+    return this._liblib$_current;
   },
   moveNext$0: function() {
     var t1 = this._map;
@@ -3868,10 +3894,10 @@ LinkedHashMapKeyIterator: {"": "Object;_map,_modifications,_cell,_liblib1$_curre
     else {
       t1 = this._cell;
       if (t1 == null) {
-        this._liblib1$_current = null;
+        this._liblib$_current = null;
         return false;
       } else {
-        this._liblib1$_current = t1.get$_key();
+        this._liblib$_current = t1.get$_key();
         this._cell = this._cell.get$_next();
         return true;
       }
@@ -3882,9 +3908,9 @@ LinkedHashMapKeyIterator: {"": "Object;_map,_modifications,_cell,_liblib1$_curre
   }
 },
 
-HashMap: {"": "Object;_length,_strings,_nums,_rest,_keys",
+HashMap: {"": "Object;_liblib$_length,_strings,_nums,_rest,_keys",
   get$length: function(_) {
-    return this._length;
+    return this._liblib$_length;
   },
   get$keys: function() {
     return new $.HashMapKeyIterable(this);
@@ -3951,7 +3977,7 @@ HashMap: {"": "Object;_length,_strings,_nums,_rest,_keys",
         strings = table;
       }
       if (strings[key] == null) {
-        this._length = this._length + 1;
+        this._liblib$_length = this._liblib$_length + 1;
         this._keys = null;
       }
       if (value == null)
@@ -3971,7 +3997,7 @@ HashMap: {"": "Object;_length,_strings,_nums,_rest,_keys",
         nums = table;
       }
       if (nums[key] == null) {
-        this._length = this._length + 1;
+        this._liblib$_length = this._liblib$_length + 1;
         this._keys = null;
       }
       if (value == null)
@@ -3998,7 +4024,7 @@ HashMap: {"": "Object;_length,_strings,_nums,_rest,_keys",
           rest[hash] = rest;
         else
           rest[hash] = t1;
-        this._length = this._length + 1;
+        this._liblib$_length = this._liblib$_length + 1;
         this._keys = null;
       } else {
         index = $.HashMap__findBucketIndex(bucket, key);
@@ -4006,7 +4032,7 @@ HashMap: {"": "Object;_length,_strings,_nums,_rest,_keys",
           bucket[index + 1] = value;
         else {
           bucket.push(key, value);
-          this._length = this._length + 1;
+          this._liblib$_length = this._liblib$_length + 1;
           this._keys = null;
         }
       }
@@ -4026,7 +4052,7 @@ HashMap: {"": "Object;_length,_strings,_nums,_rest,_keys",
       index = $.HashMap__findBucketIndex(bucket, key);
       if (index < 0)
         return;
-      this._length = this._length - 1;
+      this._liblib$_length = this._liblib$_length - 1;
       this._keys = null;
       return bucket.splice(index, 2)[1];
     }
@@ -4052,7 +4078,7 @@ HashMap: {"": "Object;_length,_strings,_nums,_rest,_keys",
     t1 = this._keys;
     if (t1 != null)
       return t1;
-    result = $.List_List(this._length);
+    result = $.List_List(this._liblib$_length);
     strings = this._strings;
     if (strings != null) {
       names = Object.getOwnPropertyNames(strings);
@@ -4094,7 +4120,7 @@ HashMap: {"": "Object;_length,_strings,_nums,_rest,_keys",
       entry = table[key];
       value = entry === table ? null : entry;
       delete table[key];
-      this._length = this._length - 1;
+      this._liblib$_length = this._liblib$_length - 1;
       this._keys = null;
       return value;
     } else
@@ -4120,7 +4146,7 @@ IterableBase: {"": "Object;",
   $asIterable: null
 },
 
-LinkedHashMap: {"": "Object;_length,_strings,_nums,_rest,_first,_last,_modifications",
+LinkedHashMap: {"": "Object;_liblib$_length,_strings,_nums,_rest,_first,_last,_modifications",
   $index: function(_, key) {
     var strings, cell, nums, rest, bucket, index;
     if (typeof key === "string" && key !== "__proto__") {
@@ -4208,7 +4234,7 @@ LinkedHashMap: {"": "Object;_length,_strings,_nums,_rest,_first,_last,_modificat
     return new $.MappedIterable(new $.LinkedHashMapKeyIterable(this), new $.LinkedHashMap_values_closure(this));
   },
   get$length: function(_) {
-    return this._length;
+    return this._liblib$_length;
   },
   toString$0: function(_) {
     var result = new $.StringBuffer("");
@@ -4235,7 +4261,7 @@ LinkedHashMap: {"": "Object;_length,_strings,_nums,_rest,_first,_last,_modificat
       last.set$_next(cell);
       this._last = cell;
     }
-    this._length = this._length + 1;
+    this._liblib$_length = this._liblib$_length + 1;
     this._modifications = this._modifications + 1 & 67108863;
     return cell;
   },
@@ -4439,25 +4465,25 @@ ListQueue: {"": "IterableBase;_table,_head,_tail,_modificationCount",
   $isIterable: true
 },
 
-_ListQueueIterator: {"": "Object;_queue,_end,_modificationCount,_liblib1$_position,_liblib1$_current",
+_ListQueueIterator: {"": "Object;_queue,_end,_modificationCount,_liblib$_position,_liblib$_current",
   get$current: function() {
-    return this._liblib1$_current;
+    return this._liblib$_current;
   },
   moveNext$0: function() {
     var t1, t2, t3;
     t1 = this._queue;
     if (this._modificationCount !== t1._modificationCount)
       $.throwExpression(new $.ConcurrentModificationError(t1));
-    t2 = this._liblib1$_position;
+    t2 = this._liblib$_position;
     if (t2 === this._end) {
-      this._liblib1$_current = null;
+      this._liblib$_current = null;
       return false;
     }
     t3 = t1._table;
     if (t2 < 0 || t2 >= t3.length)
       throw $.ioore(t2);
-    this._liblib1$_current = t3[t2];
-    this._liblib1$_position = (this._liblib1$_position + 1 & t1._table.length - 1) >>> 0;
+    this._liblib$_current = t3[t2];
+    this._liblib$_position = (this._liblib$_position + 1 & t1._table.length - 1) >>> 0;
     return true;
   }
 },
@@ -4775,17 +4801,17 @@ StringBuffer: {"": "Object;_contents",
       return;
     if (separator.length === 0)
       do {
-        str = iterator._current;
+        str = iterator._liblib0$_current;
         str = typeof str === "string" ? str : $.S(str);
         this._contents = this._contents + str;
       } while (iterator.moveNext$0());
     else {
-      str = iterator._current;
+      str = iterator._liblib0$_current;
       str = typeof str === "string" ? str : $.S(str);
       this._contents = this._contents + str;
       for (; iterator.moveNext$0();) {
         this._contents = this._contents + separator;
-        str = iterator._current;
+        str = iterator._liblib0$_current;
         str = typeof str === "string" ? str : $.S(str);
         this._contents = this._contents + str;
       }
@@ -5063,25 +5089,25 @@ Rect: {"": "Object;left>,top>,width>,height>",
 
 _DOMWindowCrossFrame: {"": "Object;_window"},
 
-FixedSizeListIterator: {"": "Object;_array,_liblib0$_length,_position,_liblib0$_current",
+FixedSizeListIterator: {"": "Object;_array,_length,_position,_current",
   moveNext$0: function() {
     var t1, nextPosition;
     t1 = this._position;
     if (typeof t1 !== "number")
       return this.moveNext$0$bailout(1, t1);
     nextPosition = t1 + 1;
-    t1 = this._liblib0$_length;
+    t1 = this._length;
     if (nextPosition < t1) {
       t1 = this._array;
       if (typeof t1 !== "string" && (typeof t1 !== "object" || t1 === null || t1.constructor !== Array && !$.isJsIndexable(t1, t1[$.dispatchPropertyName])))
         return this.moveNext$0$bailout(2, t1, nextPosition);
       if (nextPosition >>> 0 !== nextPosition || nextPosition >= t1.length)
         throw $.ioore(nextPosition);
-      this._liblib0$_current = t1[nextPosition];
+      this._current = t1[nextPosition];
       this._position = nextPosition;
       return true;
     }
-    this._liblib0$_current = null;
+    this._current = null;
     this._position = t1;
     return false;
   },
@@ -5092,7 +5118,7 @@ FixedSizeListIterator: {"": "Object;_array,_liblib0$_length,_position,_liblib0$_
       case 1:
         state0 = 0;
         nextPosition = $.$add$ns(t1, 1);
-        t1 = this._liblib0$_length;
+        t1 = this._length;
       case 2:
         if (state0 === 2 || state0 === 0 && $.$lt$n(nextPosition, t1))
           switch (state0) {
@@ -5100,17 +5126,17 @@ FixedSizeListIterator: {"": "Object;_array,_liblib0$_length,_position,_liblib0$_
               t1 = this._array;
             case 2:
               state0 = 0;
-              this._liblib0$_current = $.$index$asx(t1, nextPosition);
+              this._current = $.$index$asx(t1, nextPosition);
               this._position = nextPosition;
               return true;
           }
-        this._liblib0$_current = null;
+        this._current = null;
         this._position = t1;
         return false;
     }
   },
   get$current: function() {
-    return this._liblib0$_current;
+    return this._current;
   }
 },
 

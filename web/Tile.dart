@@ -4,36 +4,51 @@ class Tile extends Drawable {
   CanvasRenderingContext2D context;
   int row, col;
   double width, height, startX;
+  List availableColors;
   String color;
   double x, y;
 
-  Tile(this.row, this.col, this.width, this.height, this.startX) {
+  Tile(this.context, this.row, this.col, this.width, this.height, this.startX) {
     x = Room.PADDING + (width + Room.LINE_WIDTH) * col + startX;
     y = Room.PADDING + (height + Room.LINE_WIDTH) * row;
-    color = '#ABC';
+    availableColors = ['#FFF', '#ABC', '#f1ecd5', '#19549e'];
+    color = '#FFF';
   }
 
-  void update(double time) {
-
+  void update() {
+    context.clearRect(x, y, width, height);
+    draw();
   }
 
-  void draw(CanvasRenderingContext2D context) {
-    this.context = context;
+  void draw() {
     //style
     context.lineWidth = Room.LINE_WIDTH;
+    context.fillStyle = color;
+
     context.beginPath();
     context.rect(x, y, width, height);
-    context.font = '12px sans-serif';
-    //context.fillText('$y', x+2, y+11);
+    context.fillRect(x, y, width, height);
     context.closePath();
     context.stroke();
-//    context.fillStyle = color;
-//    context.fillRect(x, y, width, height);
+  }
+
+  void pickNextColor() {
+    for (int i = 0; i < availableColors.length; i++) {
+      if (color == availableColors[i]) {
+        if ((i + 1) < availableColors.length) {
+          color = availableColors[i + 1];
+          return;
+        } else {
+          color = availableColors[0];
+          return;
+        }
+      }
+    }
   }
 
   void changeColor() {
-    context.fillStyle = color;
-    context.fillRect(x, y, width, height);
+    pickNextColor();
+    update();
   }
 
   void printInfo(InfoBlock infoBlock) {
@@ -50,51 +65,3 @@ class Tile extends Drawable {
   }
 }
 
-class TileSet {
-  InfoBlock infoBlock;
-  int rows, cols, wallHeight;
-  double wallWidth, xPosition;
-  double tileWidth, tileHeight;
-  List<List> tiles;
-  List<Tile> tileRow;
-
-  TileSet(this.rows, this.cols, this.wallWidth, this.wallHeight, this.xPosition, this.infoBlock) {
-    tileWidth = (wallWidth - (Room.LINE_WIDTH * cols) - Room.LINE_WIDTH)/cols;
-    tileHeight = (wallHeight - (Room.LINE_WIDTH * rows) - Room.LINE_WIDTH)/rows;
-
-    tiles = new List();
-
-    for (int row = 0; row < rows; row++) {
-      tileRow = new List();
-      for (int col = 0; col < cols; col++) {
-        Tile tile = new Tile(row, col, tileWidth, tileHeight, xPosition);
-        //human readable rows and cols
-        int hRow = row + 1;
-        int hCol = col + 1;
-        infoBlock.setCords = 'wall: $wallWidth/$wallHeight, tiles: $hRow/$hCol ($tileWidth/$tileHeight each)';
-        tileRow.add(tile);
-      }
-      tiles.add(tileRow);
-    }
-  }
-
-  void draw(CanvasRenderingContext2D context) {
-    for (List tileRow in tiles) {
-      for (Tile tile in tileRow) {
-        tile.draw(context);
-      }
-    }
-  }
-
-  void changeTileColor(int x, int y) {
-    for (List tileRow in tiles) {
-      for (Tile tile in tileRow) {
-        if (tile.isPointInside(x, y)) {
-          tile.printInfo(infoBlock);
-          //tile.changeColor();
-        }
-      }
-    }
-  }
-
-}

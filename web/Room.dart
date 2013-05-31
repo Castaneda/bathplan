@@ -22,8 +22,8 @@ class Room {
 
   Room(CanvasElement canvas) {
     //canvas initialization
-    width = window.innerWidth;
-    height = 400;
+    width = 1080;
+    height = 360;
     canvas.width = width;
     canvas.height = height;
     context = canvas.context2d;
@@ -68,10 +68,9 @@ class Room {
       context.closePath();
       context.stroke();
 
-      tileSet = new TileSet(rows, cols, wallWidth, wallHeight, xPosition, infoBlock);
-      tileSet.draw(context);
+      tileSet = new TileSet(context, rows, cols, wallWidth, wallHeight, xPosition, infoBlock);
       tiles.add(tileSet);
-
+      tileSet.draw();
     }
   }
 

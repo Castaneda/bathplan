@@ -8,11 +8,11 @@ class Drawable {
 
   }
 
-  void update(double time) {
+  void update() {
 
   }
 
-  void draw(CanvasRenderingContext2D context) {
+  void draw() {
 
   }
 

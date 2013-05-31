@@ -23,7 +23,7 @@ class Room {
   Room(CanvasElement canvas) {
     //canvas initialization
     width = window.innerWidth;
-    height = window.innerHeight;
+    height = 400;
     canvas.width = width;
     canvas.height = height;
     context = canvas.context2d;
@@ -93,8 +93,6 @@ class Room {
     for (TileSet tileSet in tiles) {
       tileSet.changeTileColor(x, y);
     }
-
-    //infoBlock.setCords = 'test click';
   }
 
 }

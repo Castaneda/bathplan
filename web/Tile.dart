@@ -24,7 +24,7 @@ class Tile extends Drawable {
     context.beginPath();
     context.rect(x, y, width, height);
     context.font = '12px sans-serif';
-    context.fillText('$y', x+2, y+11);
+    //context.fillText('$y', x+2, y+11);
     context.closePath();
     context.stroke();
 //    context.fillStyle = color;
@@ -37,7 +37,9 @@ class Tile extends Drawable {
   }
 
   void printInfo(InfoBlock infoBlock) {
-    infoBlock.setCords = 'x = $x; y = $y; row = $row; col = $col;';
+    int hRow = row + 1;
+    int hCol = col + 1;
+    infoBlock.setTileInfo = 'Tile: $hRow/$hCol';
   }
 
   bool isPointInside(int pX, int pY) {
@@ -47,8 +49,6 @@ class Tile extends Drawable {
     return false;
   }
 }
-
-
 
 class TileSet {
   InfoBlock infoBlock;
@@ -68,6 +68,10 @@ class TileSet {
       tileRow = new List();
       for (int col = 0; col < cols; col++) {
         Tile tile = new Tile(row, col, tileWidth, tileHeight, xPosition);
+        //human readable rows and cols
+        int hRow = row + 1;
+        int hCol = col + 1;
+        infoBlock.setCords = 'wall: $wallWidth/$wallHeight, tiles: $hRow/$hCol ($tileWidth/$tileHeight each)';
         tileRow.add(tile);
       }
       tiles.add(tileRow);
